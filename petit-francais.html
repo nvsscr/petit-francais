@@ -9,6 +9,7 @@
 /* Layout: one-screen toddler app over a living meadow (sky, drifting clouds, hills, a tappable sun,
    Poussin the chick and floating picture bubbles). Deliberately single-theme, colors set explicitly. */
 :root {
+  --ol-c: #1F2B4D;
   --sky-top: #7CC8FF;
   --sky-bottom: #DDF3FF;
   --hill-back: #9BE07A;
@@ -35,6 +36,39 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; touch-action: manipulation; }
 button:focus-visible { outline: 4px solid var(--sea); outline-offset: 3px; }
 img { -webkit-user-drag: none; }
+/* dark outline so white text never disappears on the sky */
+.ol {
+  color: #fff !important;
+  text-shadow: 2px 0 0 var(--ol-c), -2px 0 0 var(--ol-c), 0 2px 0 var(--ol-c), 0 -2px 0 var(--ol-c),
+               1.5px 1.5px 0 var(--ol-c), -1.5px -1.5px 0 var(--ol-c), 1.5px -1.5px 0 var(--ol-c), -1.5px 1.5px 0 var(--ol-c),
+               0 4px 0 var(--ol-c) !important;
+}
+
+/* ---------- Loader: an egg wobbles, then Poussin hatches ---------- */
+.loader { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; align-content: center; gap: 22px;
+  background: linear-gradient(180deg, var(--sky-top), var(--sky-bottom)); transition: opacity .45s; }
+.loader.out { opacity: 0; pointer-events: none; }
+.loader .eggbox { position: relative; width: 150px; height: 150px; }
+.loader .eggbox img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.loader .egg { animation: eggwob 1.1s ease-in-out infinite; transform-origin: 50% 90%; }
+.loader .hatch { opacity: 0; transform: scale(.3); }
+.loader.hatched .egg { animation: eggpop .35s ease-in forwards; }
+.loader.hatched .hatch { animation: hatchpop .55s .2s cubic-bezier(.3,1.6,.5,1) forwards; }
+.loader .shadow { position: absolute; left: 30px; right: 30px; bottom: -8px; height: 14px; border-radius: 50%; background: rgba(31,43,77,.15); animation: shad 1.1s ease-in-out infinite; }
+@keyframes eggwob { 0%,100% { transform: rotate(0) } 15% { transform: rotate(-12deg) } 30% { transform: rotate(10deg) } 45% { transform: rotate(-6deg) } 60% { transform: rotate(0) translateY(-14px) } 75% { transform: rotate(0) } }
+@keyframes eggpop { to { transform: scale(1.3); opacity: 0; } }
+@keyframes hatchpop { to { opacity: 1; transform: scale(1); } }
+@keyframes shad { 60% { transform: scaleX(.8); opacity: .6; } }
+.ldots { display: flex; gap: 12px; }
+.ldots i { width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 3px 0 rgba(31,43,77,.2); animation: ldot 1s ease-in-out infinite; }
+.ldots i:nth-child(2) { animation-delay: .15s; background: var(--sun); }
+.ldots i:nth-child(3) { animation-delay: .3s; background: var(--leaf); }
+@keyframes ldot { 0%,100% { transform: translateY(0) } 40% { transform: translateY(-16px) } }
+.blob { display: inline-block; width: clamp(110px, 30vw, 170px); aspect-ratio: 1; border-radius: 48% 52% 44% 56% / 55% 45% 55% 45%; background: var(--c); border: 5px solid rgba(31,43,77,.12);
+  box-shadow: inset -10px -14px 0 rgba(0,0,0,.12), inset 10px 10px 0 rgba(255,255,255,.35); }
+.big .blob { width: clamp(180px, 55vw, 260px); }
+.tile .blob, .row h2 .blob { width: 92px; }
+.row h2 .blob { width: 44px; border-width: 3px; }
 
 /* ---------- Living background ---------- */
 .scene { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
@@ -68,18 +102,6 @@ img { -webkit-user-drag: none; }
 }
 @keyframes popin { from { transform: scale(.4); opacity: 0; } }
 
-.bubbles { position: fixed; inset: 0; z-index: 5; pointer-events: none; overflow: hidden; }
-.bubble {
-  position: absolute; bottom: -130px; width: 104px; height: 104px; border-radius: 50%; pointer-events: auto;
-  background: radial-gradient(circle at 30% 28%, rgba(255,255,255,.95) 0 9%, rgba(255,255,255,.25) 10% 45%, rgba(170,220,255,.3) 70%, rgba(120,190,255,.5) 100%);
-  box-shadow: inset 0 0 0 3px rgba(255,255,255,.75), 0 4px 14px rgba(31,43,77,.12);
-  display: grid; place-items: center; animation: rise linear forwards;
-}
-.bubble img { width: 62%; height: 62%; animation: wobble 2s ease-in-out infinite alternate; }
-@keyframes rise { to { transform: translateY(calc(-100vh - 260px)); } }
-@keyframes wobble { from { transform: translateX(-6px) rotate(-6deg); } to { transform: translateX(6px) rotate(6deg); } }
-.popped { animation: pop .25s ease-out forwards !important; }
-@keyframes pop { to { transform: scale(1.6); opacity: 0; } }
 
 /* ---------- App ---------- */
 .app {
@@ -120,14 +142,13 @@ img { -webkit-user-drag: none; }
 .tile img { width: 84px; height: 84px; transition: transform .2s; }
 .tile img.cv { width: 104px; height: 104px; border-radius: 26px; object-fit: cover; border: 4px solid #fff; box-shadow: 0 6px 14px rgba(31,43,77,.16); background: #fff; }
 .row h2 img.cv { border-radius: 14px; object-fit: cover; border: 3px solid #fff; filter: none; box-shadow: 0 3px 8px rgba(31,43,77,.18); }
-.bubble img.sc { width: 80%; height: 80%; border-radius: 50%; object-fit: cover; }
 .tile:active { transform: scale(.95) translateY(3px); box-shadow: 0 2px 0 rgba(31,43,77,.12); }
 .tile .fr { font-size: 1.2rem; font-weight: 800; line-height: 1.15; text-align: center; }
 .tile .n { font-size: .8rem; color: var(--ink-soft); font-weight: 500; }
 
 .modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; flex: 1; align-content: center; }
 .mode { border-radius: 36px; padding: 28px 16px; color: #fff; box-shadow: 0 8px 0 rgba(31,43,77,.2); display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.mode img { width: 120px; height: 120px; animation: idle 2.4s ease-in-out infinite; }
+.mode img { width: 140px; height: 140px; animation: idle 2.4s ease-in-out infinite; }
 .mode b { font-size: 2rem; font-weight: 800; }
 .mode.look { background: var(--sea); }
 .mode.play { background: var(--leaf); }
@@ -181,8 +202,8 @@ img.main.photo { border-radius: 24px; background: #fff; filter: none; box-shadow
 .big .pic img.main.photo { width: clamp(220px, 72vw, 380px); }
 .opt img.main.photo { width: clamp(118px, 38vw, 220px); border-radius: 18px; }
 .move-card img.main { animation: idle 1.6s ease-in-out infinite; }
-.done-btn { align-self: center; font-size: 1.8rem; padding: 18px 34px; }
-.done-btn img { width: 48px; height: 48px; }
+.done-btn { align-self: center; padding: 16px 44px; }
+.done-btn img { width: 56px; height: 56px; }
 .win { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; }
 .win .trophy { width: 170px; height: 170px; animation: hop 1s ease-in-out infinite alternate; }
 .win h2 { margin: 0; font-size: 3rem; font-weight: 800; color: #fff; text-shadow: 0 3px 0 rgba(31,43,77,.3); }
@@ -190,7 +211,7 @@ img.main.photo { border-radius: 24px; background: #fff; filter: none; box-shadow
 .win .got img { width: 52px; height: 52px; }
 .win .actions { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
 .btn { padding: 14px 24px; border-radius: 22px; font-size: 1.4rem; font-weight: 800; box-shadow: var(--shadow); background: var(--card); display: inline-flex; align-items: center; gap: 10px; }
-.btn img { width: 36px; height: 36px; }
+.btn img { width: 48px; height: 48px; }
 .btn.go { background: var(--leaf); color: #fff; }
 
 .panel { margin-top: 12px; padding: 16px; border-radius: 20px; background: var(--card); box-shadow: var(--shadow); display: grid; gap: 12px; font-size: .95rem; }
@@ -201,6 +222,17 @@ img.main.photo { border-radius: 24px; background: #fff; filter: none; box-shadow
 .seg button { padding: 6px 12px; border-radius: 10px; font-weight: 700; font-size: .9rem; }
 .seg button[aria-pressed="true"] { background: var(--ink); color: var(--card); }
 
+.rain { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 21; }
+.rain > * { position: absolute; top: -60px; animation: fall linear forwards; }
+.rain i { width: 12px; height: 18px; border-radius: 3px; }
+.rain img { width: 38px; height: 38px; }
+@keyframes fall { to { transform: translateY(calc(100vh + 120px)) rotate(var(--r)); } }
+body.flash .app { animation: flashy .6s ease-out; }
+@keyframes flashy { 0% { filter: brightness(1); transform: scale(1); } 30% { filter: brightness(1.25) saturate(1.3); transform: scale(1.02); } 100% { filter: none; transform: none; } }
+.chick.dance img { animation: dance .45s ease-in-out 5; }
+@keyframes dance { 0%,100% { transform: rotate(0) } 25% { transform: rotate(-16deg) translateY(-12px) scale(1.1) } 75% { transform: rotate(16deg) translateY(-12px) scale(1.1) } }
+.chick.bounce img { animation: wiggle .45s; }
+.tile.bounce, .bounce { animation: hop .45s; }
 .burst { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 20; }
 .burst img { position: absolute; width: 40px; height: 40px; animation: fly 1.1s ease-out forwards; }
 
@@ -209,7 +241,7 @@ img.main.photo { border-radius: 24px; background: #fff; filter: none; box-shadow
 @keyframes wiggle { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-12px) rotate(-3deg)} 75%{transform:translateX(12px) rotate(3deg)} }
 @keyframes pulse { 50%{ transform: scale(1.15); } }
 @keyframes fly { to { transform: translate(var(--x), var(--y)) rotate(var(--r)); opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } .bubble { display: none; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 
 @media (max-width: 560px) {
   .learn { grid-template-columns: 1fr 1fr; }
@@ -223,9 +255,13 @@ img.main.photo { border-radius: 24px; background: #fff; filter: none; box-shadow
   .tile img { width: 72px; height: 72px; }
   .sunbtn { width: 64px; height: 64px; top: calc(env(safe-area-inset-top, 0px) + 64px); }
   .chick { width: 80px; height: 80px; }
-  .bubble { width: 88px; height: 88px; }
 }
 </style>
+
+<div class="loader" id="loader">
+  <div class="eggbox"><span class="shadow"></span><img class="egg" src="img/egg.png" alt=""><img class="hatch" src="img/hatching-chick.png" alt=""></div>
+  <div class="ldots"><i></i><i></i><i></i></div>
+</div>
 
 <div class="scene" aria-hidden="true">
   <img class="cloud c1" src="img/cloud.png" alt="">
@@ -240,7 +276,6 @@ img.main.photo { border-radius: 24px; background: #fff; filter: none; box-shadow
   <img class="flower f3" src="img/blossom.png" alt="">
 </div>
 <button type="button" class="sunbtn" id="sun" aria-label="Le soleil"><img src="img/sun-with-face.png" alt=""></button>
-<div class="bubbles" id="bubbles"></div>
 <button type="button" class="chick" id="chick" aria-label="Poussin"><img src="img/baby-chick.png" alt=""></button>
 <div class="say" id="say" hidden></div>
 
@@ -248,7 +283,7 @@ img.main.photo { border-radius: 24px; background: #fff; filter: none; box-shadow
   <header class="bar">
     <div class="brand">
       <div class="logo"><img src="img/hatching-chick.png" alt=""></div>
-      <b>Petit Français</b>
+      <b class="ol">Petit Français</b>
     </div>
     <button class="chip stars" id="starChip" type="button" aria-label="Stars earned"><img src="img/star.png" alt=""><span id="starCount">0</span></button>
     <button class="chip" id="parentBtn" type="button" aria-pressed="false" aria-expanded="false" aria-controls="panel">Parents</button>
@@ -259,9 +294,6 @@ img.main.photo { border-radius: 24px; background: #fff; filter: none; box-shadow
   <section class="panel" id="panel" hidden>
     <h3>Parent settings</h3>
     <label>Speaking speed
-      <span class="seg" id="voiceSeg"><button type="button" data-v="1">Petit garçon</button><button type="button" data-v="0">Maîtresse</button></span>
-    </label>
-    <label>Speaking speed
       <span class="seg" id="speedSeg"><button type="button" data-v="0.8">Slow</button><button type="button" data-v="1">Normal</button></span>
     </label>
     <label>Pictures per question in games
@@ -270,10 +302,7 @@ img.main.photo { border-radius: 24px; background: #fff; filter: none; box-shadow
     <label>Show the written word
       <span class="seg" id="wordSeg"><button type="button" data-v="1">Show</button><button type="button" data-v="0">Hide</button></span>
     </label>
-    <label>Floating bubbles
-      <span class="seg" id="bubSeg"><button type="button" data-v="1">On</button><button type="button" data-v="0">Off</button></span>
-    </label>
-    <p>Five minutes a day is plenty. Let him tap the picture, hear it, and say it back out loud. Start with “Je dis” and “La maîtresse dit”. Tap Poussin the chick and the sun for a surprise, and pop the bubbles to hear new words.</p>
+    <p>Five minutes a day is plenty. Let him tap the picture, hear it, and say it back out loud. Start with “Je dis” and “La maîtresse dit”. The games remember what he got right or wrong: they never ask the same thing twice in a row, and mistakes come back a bit later.</p>
   </section>
 
   <main class="screen" id="screen"></main>
@@ -282,43 +311,49 @@ img.main.photo { border-radius: 24px; background: #fff; filter: none; box-shadow
 <script>
 (function () {
   // ---------- Content ----------
-  // Each item: [French text, picture]. ask: "ou" → "Où est … ?", "montre" → "Montre-moi : …"
-  // Pictures: Microsoft Fluent Emoji 3D (MIT). Voices: recorded with Microsoft neural voices.
+  // Each item: [French text, fallback emoji, drawing]. Colours: [text, hex]. Numbers: [text, count].
+  // Every phrase is read by the same young voice; everything else is sound effects and animation.
   const CATS = /*DATA*/[
-    {"id":"je-dis","fr":"Je dis","cover":"Speaking head","coverScene":"scene/bonjour.jpg","group":"Les 50 essentiels","ask":"montre","items":[
+    {"id":"je-dis","fr":"Je dis","v":"b","coverScene":"scene/bonjour.jpg","items":[
       ["Bonjour !","Waving hand","scene/bonjour.jpg"],["Au revoir !","Door","scene/au-revoir.jpg"],["Merci !","Folded hands","scene/merci.jpg"],["S'il te plaît","Pleading face","scene/s-il-te-plait.jpg"],
       ["Oui","Thumbs up","scene/oui.jpg"],["Non","Thumbs down","scene/non.jpg"],["Je peux aller aux toilettes ?","Toilet","scene/toilettes.jpg"],["J'ai faim","Fork and knife with plate","scene/faim.jpg"],
       ["J'ai soif","Cup with straw","scene/soif.jpg"],["J'ai mal","Face with head-bandage","scene/mal.jpg"],["Il m'a fait mal","Adhesive bandage","scene/fait-mal.jpg"],["Aide-moi, s'il te plaît","Open hands","scene/aide-moi.jpg"],
       ["Je ne comprends pas","Confused face","scene/comprends-pas.jpg"],["J'ai fini !","Check mark button","scene/fini.jpg"],["Je suis fatigué","Sleeping face","scene/fatigue.jpg"],["J'ai froid","Cold face","scene/froid.jpg"],
       ["Je veux ma maman","Crying face","scene/maman.jpg"],["C'est à moi !","Wrapped gift","scene/a-moi.jpg"],["Je peux jouer ?","Puzzle piece","scene/jouer.jpg"],["Pardon","Pensive face","scene/pardon.jpg"]]},
-    {"id":"maitresse","fr":"La maîtresse dit","cover":"Woman teacher","coverScene":"scene/maitresse.jpg","group":"Les 50 essentiels","ask":"montre","items":[
+    {"id":"copains","fr":"Avec les copains","v":"b","coverScene":"scene/jouer-avec-moi.jpg","items":[
+      ["Tu veux jouer avec moi ?","","scene/jouer-avec-moi.jpg"],["Comment tu t'appelles ?","","scene/appelles.jpg"],["À mon tour !","","scene/mon-tour.jpg"],["Attends-moi !","","scene/attends-moi.jpg"],
+      ["Moi aussi !","","scene/moi-aussi.jpg"],["Encore !","","scene/encore.jpg"],["C'est quoi ?","","scene/c-est-quoi.jpg"],["Je ne veux pas","","scene/veux-pas.jpg"],
+      ["Je suis content !","","scene/content.jpg"],["Je suis triste","","scene/triste.jpg"],["J'ai chaud","","scene/chaud.jpg"],["Je suis tombé","","scene/tombe.jpg"],["Où est papa ?","","scene/papa.jpg"]]},
+    {"id":"maitresse","fr":"La maîtresse dit","v":"t","coverScene":"scene/maitresse.jpg","items":[
       ["Écoute","Ear","scene/ecoute.jpg"],["Regarde","Eyes","scene/regarde.jpg"],["Chut !","Shushing face","scene/chut.jpg"],["Assieds-toi","Chair","scene/assieds-toi.jpg"],["Lève-toi","Person standing","scene/leve-toi.jpg"],
       ["Viens ici","Person walking","scene/viens-ici.jpg"],["Mets-toi en rang","Footprints","scene/rang.jpg"],["Donne la main","Handshake","scene/donne-la-main.jpg"],["On range !","Basket","scene/on-range.jpg"],
       ["Lave-toi les mains","Soap","scene/lave-mains.jpg"],["Mets ton manteau","Coat","scene/manteau.jpg"],["Attends ton tour","Hourglass not done","scene/attends.jpg"],["Lève le doigt","Person raising hand","scene/leve-doigt.jpg"],
       ["Attention !","Warning","scene/attention.jpg"],["Doucement","Snail","scene/doucement.jpg"],["Arrête !","Stop sign","scene/arrete.jpg"],["C'est l'heure de manger","Fork and knife","scene/manger.jpg"],
       ["C'est l'heure de la sieste","Bed","scene/sieste.jpg"],["C'est la récréation !","Soccer ball","scene/recre.jpg"],["Bravo !","Clapping hands","scene/bravo.jpg"]]},
-    {"id":"ecole","fr":"Mon école","cover":"School","coverScene":"scene/ecole.jpg","group":"Les 50 essentiels","ask":"montre","items":[
+    {"id":"classe","fr":"En classe","v":"t","coverScene":"scene/chante.jpg","items":[
+      ["Ça va ?","","scene/ca-va.jpg"],["On chante !","","scene/chante.jpg"],["On dessine","","scene/dessine.jpg"],["Ferme les yeux","","scene/ferme-yeux.jpg"],
+      ["Partage avec les copains","","scene/partage.jpg"],["On ne tape pas","","scene/tape-pas.jpg"],["Mets tes chaussons","","scene/chaussons.jpg"],["Bois de l'eau","","scene/eau.jpg"],
+      ["Dis merci","","scene/dis-merci.jpg"],["Maman va venir","","scene/maman-va-venir.jpg"],["Mouche ton nez","","scene/mouche.jpg"],["Finis ton assiette","","scene/assiette.jpg"]]},
+    {"id":"ecole","fr":"Mon école","v":"t","coverScene":"scene/ecole.jpg","items":[
       ["la maîtresse","Woman teacher","scene/maitresse.jpg"],["l'ATSEM","Woman","scene/atsem.jpg"],["les copains","Children crossing","scene/copains.jpg"],["le doudou","Teddy bear","scene/doudou.jpg"],
-      ["le cartable","Backpack","scene/cartable.jpg"],["l'école","School","scene/ecole.jpg"],["le goûter","Cookie","scene/gouter.jpg"],["le crayon","Crayon","scene/crayon.jpg"],["le livre","Green book","scene/livre.jpg"],["les chaussures","Running shoe","scene/chaussures.jpg"]]},
-    {"id":"bouge","fr":"Bouge avec Poussin","cover":"Baby chick","coverScene":"scene/comme-moi.jpg","group":"Pour jouer","ask":"montre","type":"move","items":[
-      ["Lève les bras !","Raising hands","scene/leve-bras.jpg"],["Tape dans tes mains !","Clapping hands","scene/tape-mains.jpg"],["Saute !","Kangaroo","scene/saute.jpg"],["Tourne !","Cyclone","scene/tourne.jpg"],
-      ["Marche !","Person walking","scene/marche.jpg"],["Cours !","Person running","scene/cours.jpg"],["Assieds-toi !","Chair","scene/assieds-toi.jpg"],["Lève-toi !","Person standing","scene/leve-toi.jpg"],
-      ["Accroupis-toi !","Frog","scene/accroupis.jpg"],["Danse !","Woman dancing","scene/danse.jpg"],["Montre ton nez !","Nose","scene/nez.jpg"],["Fais comme moi !","Baby chick","scene/comme-moi.jpg"]]}
+      ["le cartable","Backpack","scene/cartable.jpg"],["l'école","School","scene/ecole.jpg"],["le goûter","Cookie","scene/gouter.jpg"],["le crayon","Crayon","scene/crayon.jpg"],["le livre","Green book","scene/livre.jpg"],["les chaussures","Running shoe","scene/chaussures.jpg"],
+      ["la cour","","scene/cour.jpg"],["le toboggan","","scene/toboggan.jpg"],["la cantine","","scene/cantine.jpg"],["le ballon","","scene/ballon.jpg"],["les jouets","","scene/jouets.jpg"],["la chaise","","scene/chaise.jpg"],["les ciseaux","","scene/ciseaux.jpg"]]},
+    {"id":"couleurs","fr":"Les couleurs","v":"t","type":"color","items":[
+      ["rouge","#E53935"],["bleu","#1E88E5"],["jaune","#FDD835"],["vert","#43A047"],["orange","#FB8C00"],["rose","#F48FB1"],["noir","#212121"],["blanc","#FFFFFF"]]},
+    {"id":"nombres","fr":"Je compte","v":"t","type":"number","items":[
+      ["un","1"],["deux","2"],["trois","3"],["quatre","4"],["cinq","5"],["six","6"],["sept","7"],["huit","8"]]},
+    {"id":"bouge","fr":"Bouge avec Poussin","v":"m","coverScene":"scene/comme-moi.jpg","type":"move","items":[
+      ["Lève les bras !","","scene/leve-bras.jpg"],["Tape dans tes mains !","","scene/tape-mains.jpg"],["Saute !","","scene/saute.jpg"],["Tourne !","","scene/tourne.jpg"],
+      ["Marche !","","scene/marche.jpg"],["Cours !","","scene/cours.jpg"],["Assieds-toi !","","scene/assieds-toi.jpg"],["Lève-toi !","","scene/leve-toi.jpg"],
+      ["Accroupis-toi !","","scene/accroupis.jpg"],["Danse !","","scene/danse.jpg"],["Montre ton nez !","","scene/nez.jpg"],["Fais comme moi !","","scene/comme-moi.jpg"],
+      ["Vole comme un oiseau !","","scene/oiseau.jpg"],["Tape des pieds !","","scene/tape-pieds.jpg"],["Touche tes pieds !","","scene/touche-pieds.jpg"],["Lève une jambe !","","scene/une-jambe.jpg"]]}
   ]/*END*/;
-  // "Le grand jeu": all 50 essentials mixed together
-  const ESSENTIALS = CATS.filter(c => c.group === "Les 50 essentiels");
+  // "Le grand jeu": every phrase (not colours, numbers or movements) mixed together
+  const ESSENTIALS = CATS.filter(c => !c.type);
   const ALL_ID = "tout";
-  CATS.splice(ESSENTIALS.length, 0, { id: ALL_ID, fr: "Le grand jeu", cover: "Trophy", coverScene: "scene/bravo.jpg", group: "Pour jouer", ask: "montre", parts: ESSENTIALS.map(c => c.id), items: ESSENTIALS.flatMap(c => c.items) });
-  const COMMON = /*COMMON*/{
-    "teacher": ["Bravo !","Super !","Très bien !","Génial !","Oui, c'est ça !","Essaie encore !","Encore une fois !",
-                "Bonjour ! On apprend le français ?","Bravo ! On joue ?","Bravo ! Tu as gagné !","Regarde","Joue","Bouge avec Poussin","Le grand jeu"],
-    "chick": ["Coucou ! Je suis Poussin !","Cui cui !","Hi hi hi, ça chatouille !","On joue ensemble ?","Tu es super !",
-              "Attrape les bulles !","Ouh là là !","Bisous !","Il fait beau aujourd'hui !","Bravo, champion !"]
-  }/*ENDCOMMON*/;
-  const PRAISE = COMMON.teacher.slice(0, 5);
-  const TRY = COMMON.teacher.slice(5, 7);
-  const CHICK_LINES = COMMON.chick.filter(l => l !== "Il fait beau aujourd'hui !" && l !== "Bravo, champion !");
-  const ROUNDS = 5;
+  CATS.splice(ESSENTIALS.length, 0, { id: ALL_ID, fr: "Le grand jeu", coverScene: "scene/bravo.jpg", items: ESSENTIALS.flatMap(c => c.items) });
+  const COMMON = /*COMMON*/{ "teacher": [], "chick": [] }/*ENDCOMMON*/;
+  const ROUNDS = 6;
   const slug = n => n.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   const src = n => "img/" + slug(n) + ".png";
   const img = (n, cls) => '<img src="' + src(n) + '" alt=""' + (cls ? ' class="' + cls + '"' : "") + ' draggable="false">';
@@ -328,23 +363,18 @@ img.main.photo { border-radius: 24px; background: #fff; filter: none; box-shadow
     get(k, d) { try { const v = localStorage.getItem("pf_" + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem("pf_" + k, JSON.stringify(v)); } catch (e) {} }
   };
-  const prefs = { speed: store.get("speed", 1), opts: store.get("opts", 2), word: store.get("word", 1), bub: store.get("bub", 1), stars: store.get("stars", 0), voice: store.get("voice2", 1) };
+  const prefs = { speed: store.get("speed", 1), opts: store.get("opts", 2), word: store.get("word", 1), stars: store.get("stars", 0) };
 
   // ---------- Voice: recorded clips, robot voice only as a fallback ----------
-  const clips = {};          // text -> data URI
-  const loading = {};
-  // two recorded voices: audio/boy/*.json (petit garçon) and audio/teacher/*.json (maîtresse)
-  function loadClips(fid) {
-    if (fid === ALL_ID) return Promise.all(ESSENTIALS.map(c => loadClips(c.id)));
-    if (!loading[fid]) loading[fid] = fetch("audio/" + (prefs.voice ? "boy" : "teacher") + "/" + fid + ".json").then(r => r.ok ? r.json() : {}).then(m => Object.assign(clips, m)).catch(() => {});
-    return loading[fid];
-  }
+  const clips = {};          // text -> data URI, every voice in one file
+  const ready = fetch("audio/clips.json").then(r => r.ok ? r.json() : {}).then(m => Object.assign(clips, m)).catch(() => {});
+  const loadClips = () => ready;
   const player = new Audio();
   player.preload = "auto";
   let chain = Promise.resolve(), token = 0;
-  function playClip(key, text) {
+  function playClip(text) {
     return new Promise(resolve => {
-      const uri = clips[key];
+      const uri = clips[text];
       if (!uri) return fallbackTTS(text).then(resolve);
       let done = false, guard = null;
       const fin = () => { if (!done) { done = true; clearTimeout(guard); resolve(); } };
@@ -364,27 +394,53 @@ img.main.photo { border-radius: 24px; background: #fff; filter: none; box-shadow
   // say(text): stop whatever is playing and say it. say(text, {queue:true}): wait for the current clip.
   function say(text, opts) {
     opts = opts || {};
-    const key = opts.chick ? "m:" + text : text;
     if (!opts.queue) { token++; try { player.pause(); } catch (e) {} if (window.speechSynthesis) speechSynthesis.cancel(); chain = Promise.resolve(); }
     const my = token;
-    chain = chain.then(() => my === token ? playClip(key, text) : null);
+    chain = chain.then(() => my === token ? playClip(text) : null);
     return chain;
   }
-  loadClips("common");
 
-  // ---------- Sound effects (Web Audio, no files) ----------
+  // ---------- Sound effects (Web Audio, no files): lots of happy noise ----------
   let actx = null;
   function sfx(kind) {
     try {
       actx = actx || new (window.AudioContext || window.webkitAudioContext)();
       if (actx.state === "suspended") actx.resume();
-      const t = actx.currentTime, o = actx.createOscillator(), g = actx.createGain();
-      o.connect(g); g.connect(actx.destination);
-      if (kind === "pop") { o.type = "sine"; o.frequency.setValueAtTime(900, t); o.frequency.exponentialRampToValueAtTime(180, t + .12); g.gain.setValueAtTime(.35, t); g.gain.exponentialRampToValueAtTime(.001, t + .15); o.start(t); o.stop(t + .16); }
-      if (kind === "boing") { o.type = "triangle"; o.frequency.setValueAtTime(220, t); o.frequency.exponentialRampToValueAtTime(660, t + .18); o.frequency.exponentialRampToValueAtTime(330, t + .35); g.gain.setValueAtTime(.25, t); g.gain.exponentialRampToValueAtTime(.001, t + .4); o.start(t); o.stop(t + .42); }
-      if (kind === "ding") { o.type = "sine"; o.frequency.setValueAtTime(1046, t); o.frequency.setValueAtTime(1568, t + .09); g.gain.setValueAtTime(.2, t); g.gain.exponentialRampToValueAtTime(.001, t + .45); o.start(t); o.stop(t + .46); }
+      const t = actx.currentTime;
+      const tone = (type, f0, f1, at, dur, vol) => {
+        const o = actx.createOscillator(), g = actx.createGain(); o.connect(g); g.connect(actx.destination);
+        o.type = type; o.frequency.setValueAtTime(f0, t + at); if (f1) o.frequency.exponentialRampToValueAtTime(f1, t + at + dur);
+        g.gain.setValueAtTime(0.0001, t + at); g.gain.exponentialRampToValueAtTime(vol, t + at + .01); g.gain.exponentialRampToValueAtTime(.0001, t + at + dur);
+        o.start(t + at); o.stop(t + at + dur + .03);
+      };
+      const noise = (at, dur, vol, freq) => {
+        const len = Math.floor(actx.sampleRate * dur), buf = actx.createBuffer(1, len, actx.sampleRate), d = buf.getChannelData(0);
+        for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
+        const n = actx.createBufferSource(), f = actx.createBiquadFilter(), g = actx.createGain();
+        n.buffer = buf; f.type = "bandpass"; f.frequency.value = freq || 3000; g.gain.value = vol;
+        n.connect(f); f.connect(g); g.connect(actx.destination); n.start(t + at);
+      };
+      const S = {
+        tap:    () => tone("sine", 600, 900, 0, .08, .15),
+        pop:    () => { tone("sine", 900, 180, 0, .14, .35); noise(0, .05, .3, 2000); },
+        boing:  () => tone("triangle", 180, 720, 0, .35, .3),
+        squeak: () => { tone("square", 1200, 1800, 0, .08, .08); tone("square", 1500, 2200, .1, .08, .08); tone("square", 1300, 2000, .2, .1, .08); },
+        whoosh: () => { noise(0, .35, .5, 1200); tone("sine", 300, 1200, 0, .3, .12); },
+        slide:  () => tone("sine", 400, 1600, 0, .45, .2),
+        ding:   () => { tone("sine", 1046, 0, 0, .3, .25); tone("sine", 1568, 0, .08, .4, .22); },
+        yay:    () => { [523, 659, 784, 1046, 1318].forEach((f, i) => tone("triangle", f, 0, i * .07, .3, .2)); noise(.3, .4, .35, 6000); tone("sine", 2093, 0, .35, .3, .12); },
+        bwomp:  () => { tone("sawtooth", 300, 260, 0, .22, .12); tone("sawtooth", 260, 120, .24, .45, .12); },
+        tada:   () => {
+          [[523, 0], [523, .12], [523, .24], [659, .36], [784, .6], [1046, .9]].forEach(([f, at]) => { tone("triangle", f, 0, at, .35, .25); tone("square", f / 2, 0, at, .3, .05); });
+          [0, .36, .9].forEach(at => noise(at, .3, .5, 5000)); noise(1.2, .9, .4, 7000);
+        },
+        drum:   () => { for (let i = 0; i < 10; i++) noise(i * .06, .05, .5, 400); tone("sine", 120, 50, .6, .3, .5); }
+      };
+      (S[kind] || S.tap)();
     } catch (e) {}
   }
+  // a little "tap" noise on every button
+  document.addEventListener("pointerdown", e => { if (e.target.closest && e.target.closest("button")) sfx("tap"); }, true);
 
   // ---------- Helpers ----------
   const $screen = document.getElementById("screen");
@@ -392,10 +448,14 @@ img.main.photo { border-radius: 24px; background: #fff; filter: none; box-shadow
   const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const pick = a => a[Math.floor(Math.random() * a.length)];
 
-  const coverImg = (c, cls) => c.coverScene ? '<img src="' + c.coverScene + '" alt="" class="' + cls + '" draggable="false">' : img(c.cover);
+  const coverImg = (c, cls) => c.coverScene ? '<img src="' + c.coverScene + '" alt="" class="' + cls + '" draggable="false">'
+    : c.type === "color" ? '<span class="blob" style="--c:#E53935"></span>'
+    : '<span class="num cvnum"><span class="digit">123</span></span>';
   // warm the cache so drawings appear instantly in lessons and games
   setTimeout(() => { const seen = new Set(); CATS.forEach(c => c.items.forEach(it => { if (it[2] && !seen.has(it[2])) { seen.add(it[2]); new Image().src = it[2]; } })); }, 2500);
+  const picKey = it => it[2] || it[1];
   function picHTML(cat, item) {
+    if (cat.type === "color") return '<span class="blob" style="--c:' + item[1] + '"></span>';
     if (cat.type === "number") {
       const n = +item[1];
       return '<span class="num"><span class="digit">' + n + '</span><span class="apples">' + Array.from({ length: n }, () => img("Red apple")).join("") + "</span></span>";
@@ -403,7 +463,7 @@ img.main.photo { border-radius: 24px; background: #fff; filter: none; box-shadow
     if (item[2]) return '<img src="' + item[2] + '" alt="" class="main photo" draggable="false">';
     return img(item[1], "main");
   }
-  const askText = (cat, word) => cat.ask === "ou" ? "Où est " + word + " ?" : "Montre-moi : " + word;
+  const askText = (cat, word) => word;   // the question is just the phrase itself
   function addStars(n) { prefs.stars += n; store.set("stars", prefs.stars); document.getElementById("starCount").textContent = prefs.stars; }
   function burst(x, y, names, count) {
     const b = document.createElement("div"); b.className = "burst";
@@ -418,227 +478,265 @@ img.main.photo { border-radius: 24px; background: #fff; filter: none; box-shadow
     document.body.appendChild(b); setTimeout(() => b.remove(), 1300);
   }
   function bounce(el) { el.classList.remove("bounce"); void el.offsetWidth; el.classList.add("bounce"); }
+  // confetti and stars falling from the top of the screen
+  function rain(n) {
+    const box = document.createElement("div"); box.className = "rain";
+    const names = ["Star", "Party popper", "Sparkles", "Glowing star", "Balloon", "Red apple", "Sunflower", "Tulip", "Baby chick"];
+    for (let i = 0; i < (n || 36); i++) {
+      const e = document.createElement(Math.random() < .55 ? "i" : "img");
+      if (e.tagName === "IMG") { e.src = src(pick(names)); e.alt = ""; }
+      else e.style.background = pick(["#FF5D73", "#FFC93C", "#34C27A", "#3A86FF", "#B66DFF", "#FF8A3D"]);
+      e.style.left = Math.random() * 100 + "vw";
+      e.style.animationDuration = (1.4 + Math.random() * 1.4) + "s";
+      e.style.animationDelay = (Math.random() * .6) + "s";
+      e.style.setProperty("--r", (Math.random() * 1080 - 540) + "deg");
+      box.appendChild(e);
+    }
+    document.body.appendChild(box); setTimeout(() => box.remove(), 3400);
+  }
+  function party(el) {
+    const r = el ? el.getBoundingClientRect() : null;
+    burst(r ? r.left + r.width / 2 : null, r ? r.top + r.height / 2 : null, null, 34);
+    rain(30); dance(); flash();
+  }
+  function dance() { chick.classList.remove("dance"); void chick.offsetWidth; chick.classList.add("dance"); }
+  function flash() { document.body.classList.remove("flash"); void document.body.offsetWidth; document.body.classList.add("flash"); }
 
   // ---------- Poussin the chick & the sun ----------
   const chick = document.getElementById("chick"), bubbleText = document.getElementById("say");
   let sayTimer;
-  function chickSays(line) {
-    chick.classList.remove("hop"); void chick.offsetWidth; chick.classList.add("hop");
-    bubbleText.textContent = line; bubbleText.hidden = false;
-    clearTimeout(sayTimer); sayTimer = setTimeout(() => { bubbleText.hidden = true; }, 2600);
-    say(line, { chick: true });
-  }
-  chick.onclick = () => { sfx("boing"); chickSays(pick(CHICK_LINES)); };
+  chick.onclick = () => {
+    sfx(pick(["squeak", "boing", "slide"])); dance();
+    const r = chick.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, ["Sparkles", "Glowing star", "Balloon", "Baby chick"], 16);
+  };
   const sun = document.getElementById("sun");
   sun.onclick = () => {
     sun.classList.remove("happy"); void sun.offsetWidth; sun.classList.add("happy");
-    const r = sun.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, ["Sparkles","Glowing star"], 12);
-    sfx("ding"); chickSays("Il fait beau aujourd'hui !");
+    const r = sun.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, ["Sparkles","Glowing star"], 18);
+    sfx("slide"); rain(16);
   };
+  // Poussin hops by himself now and then
+  setInterval(() => { if (!document.hidden && Math.random() < .5) { chick.classList.remove("hop"); void chick.offsetWidth; chick.classList.add("hop"); } }, 4000);
 
-  // ---------- Picture bubbles (home & menu screens) ----------
-  const bubbleLayer = document.getElementById("bubbles");
-  const BUBBLE_POOL = CATS.filter(c => c.type !== "number" && c.id !== ALL_ID).flatMap(c => c.items.map(it => ({ cat: c.id, word: it[0], pic: it[1], scene: it[2] })));
-  function spawnBubble() {
-    if (!prefs.bub || document.hidden || !(state.view === "home" || state.view === "cat")) return;
-    if (bubbleLayer.children.length >= 4) return;
-    const it = pick(BUBBLE_POOL);
-    const b = document.createElement("button"); b.type = "button"; b.className = "bubble"; b.setAttribute("aria-label", it.word);
-    b.innerHTML = it.scene ? '<img class="sc" src="' + it.scene + '" alt="" draggable="false">' : img(it.pic);
-    const size = innerWidth < 560 ? 88 : 104;
-    b.style.left = Math.round(Math.random() * (innerWidth - size - 20) + 10) + "px";
-    b.style.animationDuration = (11 + Math.random() * 6) + "s";
-    b.onanimationend = e => { if (e.target === b) b.remove(); };
-    b.onclick = () => {
-      if (b.classList.contains("popped")) return;
-      const r = b.getBoundingClientRect();
-      b.style.transform = getComputedStyle(b).transform; b.classList.add("popped");
-      sfx("pop"); burst(r.left + r.width / 2, r.top + r.height / 2, [it.pic, "Sparkles"], 8);
-      loadClips(it.cat).then(() => say(it.word));
-      setTimeout(() => b.remove(), 260);
-    };
-    bubbleLayer.appendChild(b);
+  // ---------- Smart question choice ----------
+  // Each phrase remembers how well he knows it (box 0-6) and when it is due again, counted in questions answered.
+  // Right first try → up a box, back later and later (2, 4, 8, 16… questions). A mistake → box 0, back 2 questions later.
+  // The last 2 phrases asked (even in an earlier game) are never asked again straight away.
+  const INTERVALS = [2, 4, 8, 16, 32, 64, 128];
+  const stats = store.get("st", {});
+  let clock = store.get("clock", 0), recent = store.get("recent", []);
+  function pickTarget(cat, g) {
+    let best = 0, bs = -Infinity;
+    const block = Math.min(2, cat.items.length - 1);
+    cat.items.forEach((it, i) => {
+      const t = it[0], s = stats[t] || { b: 0, due: 0, n: 0 }, asked = g.asked[t] || 0;
+      let sc = (clock - s.due) * 6 - s.b * 4;
+      if (!s.n) sc += 25;                                  // never seen yet: bring it in
+      if (g.wrong[t] && !g.fixed[t]) sc += 400;            // a mistake comes back soon
+      sc -= asked * 200;                                   // spread a game over different phrases
+      const ri = recent.indexOf(t);
+      if (ri >= 0 && ri < block) sc -= 5000;               // never twice in a row
+      sc += Math.random() * 20;
+      if (sc > bs) { bs = sc; best = i; }
+    });
+    return best;
   }
-  setInterval(spawnBubble, 2600);
-  function clearBubbles() { bubbleLayer.innerHTML = ""; }
+  function record(t, firstTry) {
+    const s = stats[t] || (stats[t] = { b: 0, due: 0, n: 0 });
+    clock++; s.n++;
+    if (firstTry) { s.b = Math.min(s.b + 1, INTERVALS.length - 1); s.due = clock + INTERVALS[s.b]; }
+    else { s.b = 0; s.due = clock + 2; }
+    recent = [t].concat(recent.filter(x => x !== t)).slice(0, 4);
+    store.set("st", stats); store.set("clock", clock); store.set("recent", recent);
+  }
 
   // ---------- Screens ----------
   let state = { view: "home" };
   function go(view, extra) {
     state = Object.assign({ view }, extra || {});
-    if (view !== "home" && view !== "cat") clearBubbles();
     render(); window.scrollTo(0, 0);
   }
   function render() { ({ home: renderHome, cat: renderCat, learn: renderLearn, game: renderGame, win: renderWin, move: renderMove })[state.view](); }
+  const stars = n => Array.from({ length: n.total }, (_, i) => '<img src="' + src("Star") + '" alt="" class="' + (i < n.score ? "on" : "") + '">').join("");
 
-  // ----- Bouge avec Poussin: Poussin gives a movement, he does it, then taps "J'ai fait !" -----
+  // ----- Bouge avec Poussin: Poussin gives a movement, he does it, then taps ✓ -----
   const MOVE_ROUNDS = 6;
   function startMove(ci) {
-    const cat = CATS[ci];
-    state = { view: "move", cat: ci, rounds: shuffle(cat.items.map((_, i) => i)).slice(0, MOVE_ROUNDS), r: 0, score: 0 };
-    clearBubbles(); window.scrollTo(0, 0);
-    say("Bouge avec Poussin");
-    loadClips(cat.id).then(() => { render(); giveMove(true); });
+    state = { view: "move", cat: ci, total: MOVE_ROUNDS, r: 0, score: 0, asked: {}, wrong: {}, fixed: {} };
+    window.scrollTo(0, 0);
+    sfx("drum");
+    ready.then(() => setTimeout(() => nextMove(), 700));
+  }
+  function nextMove(queued) {
+    state.target = pickTarget(CATS[state.cat], state);
+    render(); giveMove(queued);
   }
   function giveMove(queued) {
-    const item = CATS[state.cat].items[state.rounds[state.r]];
+    const item = CATS[state.cat].items[state.target];
     chick.classList.remove("hop"); void chick.offsetWidth; chick.classList.add("hop");
     bubbleText.textContent = item[0]; bubbleText.hidden = false;
     clearTimeout(sayTimer); sayTimer = setTimeout(() => { bubbleText.hidden = true; }, 3500);
     say(item[0], { queue: !!queued });
   }
   function renderMove() {
-    const cat = CATS[state.cat], item = cat.items[state.rounds[state.r]];
-    const prog = state.rounds.map((_, i) => '<img src="' + src("Star") + '" alt="" class="' + (i < state.score ? "on" : "") + '">').join("");
+    const cat = CATS[state.cat], item = cat.items[state.target];
     $screen.innerHTML = header(cat) +
-      '<div class="ask"><button type="button" class="speaker" id="speaker" aria-label="Hear it again">' + img("Speaker high volume") + "</button>" +
-      '<div class="q">' + (prefs.word ? esc(item[0]) : "") + '</div><div class="progress">' + prog + "</div></div>" +
+      '<div class="ask"><button type="button" class="speaker" id="speaker" aria-label="Écouter">' + img("Speaker high volume") + "</button>" +
+      '<div class="q">' + (prefs.word ? esc(item[0]) : "") + '</div><div class="progress">' + stars(state) + "</div></div>" +
       '<div class="big move-card"><span class="pic">' + picHTML(cat, item) + "</span></div>" +
-      '<button type="button" class="btn go done-btn" id="done">' + img("Check mark button") + "J'ai fait !</button>";
+      '<button type="button" class="btn go done-btn" id="done" aria-label="J\'ai fait">' + img("Check mark button") + "</button>";
     document.getElementById("back").onclick = () => { bubbleText.hidden = true; go("home"); };
     document.getElementById("speaker").onclick = () => giveMove();
     const done = document.getElementById("done");
     done.onclick = () => {
       if (done.disabled) return; done.disabled = true;
-      state.score++; sfx("ding");
-      const r = done.getBoundingClientRect(); burst(r.left + r.width / 2, r.top);
-      say(pick(PRAISE)).then(() => {
+      state.score++; sfx("yay");
+      const t = item[0]; record(t, true); state.asked[t] = (state.asked[t] || 0) + 1;
+      party(done);
+      setTimeout(() => {
         if (state.view !== "move") return;
         state.r++;
-        if (state.r >= state.rounds.length) { addStars(state.score); go("win", { cat: state.cat, score: state.score, move: true }); say("Bravo ! Tu as gagné !"); setTimeout(() => chickSays("Bravo, champion !"), 1800); }
-        else { render(); giveMove(); }
-      });
+        if (state.r >= state.total) { addStars(state.score); go("win", { cat: state.cat, score: state.score, move: true }); }
+        else nextMove();
+      }, 1300);
     };
   }
 
   function renderHome() {
-    const groups = [];
-    CATS.forEach((c, i) => { let g = groups.find(x => x.name === c.group); if (!g) groups.push(g = { name: c.group, list: [] }); g.list.push(i); });
     $screen.innerHTML =
-      '<button type="button" class="hello" id="hi">' + img("Waving hand") + "<span>Bonjour !<small>Touche une image</small></span></button>" +
-      groups.map(g => '<p class="group-title">' + esc(g.name) + '</p><div class="grid">' + g.list.map(i => {
-        const c = CATS[i];
-        return '<button type="button" class="tile" data-i="' + i + '">' + coverImg(c, "cv") + '<span class="fr">' + esc(c.fr) + '</span><span class="n">' + c.items.length + " mots</span></button>";
-      }).join("") + "</div>").join("");
-    document.getElementById("hi").onclick = e => { bounce(e.currentTarget); say("Bonjour ! On apprend le français ?"); };
+      '<button type="button" class="hello ol" id="hi">' + img("Waving hand") + "<span>Bonjour !</span></button>" +
+      '<div class="grid">' + CATS.map((c, i) =>
+        '<button type="button" class="tile" data-i="' + i + '">' + coverImg(c, "cv") + '<span class="fr">' + esc(c.fr) + "</span></button>").join("") + "</div>";
+    document.getElementById("hi").onclick = e => { bounce(e.currentTarget); sfx("boing"); burst(null, 120, ["Waving hand", "Sparkles"], 12); };
     $screen.querySelectorAll(".tile").forEach(t => t.onclick = () => {
-      const i = +t.dataset.i; loadClips(CATS[i].id);
+      const i = +t.dataset.i;
       if (CATS[i].type === "move") return startMove(i);
-      if (CATS[i].id === ALL_ID) { say("Le grand jeu"); return startGame(i, true); }
-      say(CATS[i].fr); go("cat", { cat: i });
+      sfx("whoosh"); bounce(t);
+      if (CATS[i].id === ALL_ID) return startGame(i);
+      go("cat", { cat: i });
     });
   }
 
-  const header = cat => '<div class="row"><button type="button" class="back" id="back" aria-label="Back">←</button><h2>' + coverImg(cat, "cv") + esc(cat.fr) + "</h2></div>";
+  const header = cat => '<div class="row"><button type="button" class="back" id="back" aria-label="Retour">←</button><h2 class="ol">' + coverImg(cat, "cv") + esc(cat.fr) + "</h2></div>";
 
   function renderCat() {
     const cat = CATS[state.cat];
     $screen.innerHTML = header(cat) +
       '<div class="modes">' +
-      '<button type="button" class="mode look" id="look">' + img("Eyes") + "<b>Regarde</b></button>" +
-      '<button type="button" class="mode play" id="play">' + img("Video game") + "<b>Joue</b></button></div>";
+      '<button type="button" class="mode look" id="look" aria-label="Regarde">' + img("Eyes") + "</button>" +
+      '<button type="button" class="mode play" id="play" aria-label="Joue">' + img("Video game") + "</button></div>";
     document.getElementById("back").onclick = () => go("home");
-    document.getElementById("look").onclick = () => { go("learn", { cat: state.cat, idx: 0 }); sayCurrent(); };
-    document.getElementById("play").onclick = () => startGame(state.cat);
+    document.getElementById("look").onclick = () => { sfx("whoosh"); go("learn", { cat: state.cat, idx: 0 }); sayCurrent(); };
+    document.getElementById("play").onclick = () => { sfx("drum"); startGame(state.cat); };
   }
 
-  const sayCurrent = () => { const c = CATS[state.cat]; loadClips(c.id).then(() => say(c.items[state.idx][0])); };
+  const sayCurrent = () => { const c = CATS[state.cat]; ready.then(() => say(c.items[state.idx][0])); };
 
   function renderLearn() {
     const cat = CATS[state.cat], item = cat.items[state.idx], n = cat.items.length;
     $screen.innerHTML = header(cat) +
       '<div class="learn">' +
-      '<button type="button" class="arrow" id="prev" aria-label="Previous"' + (state.idx === 0 ? " disabled" : "") + ">◀</button>" +
+      '<button type="button" class="arrow" id="prev" aria-label="Précédent"' + (state.idx === 0 ? " disabled" : "") + ">◀</button>" +
       '<button type="button" class="big" id="card" aria-label="' + esc(item[0]) + '"><span class="pic">' + picHTML(cat, item) + "</span>" +
       (prefs.word ? '<span class="word">' + esc(item[0]) + "</span>" : "") +
-      '<span class="hint">' + img("Speaker high volume") + "Touche pour écouter</span></button>" +
-      '<button type="button" class="arrow" id="next" aria-label="Next">' + (state.idx === n - 1 ? img("Video game") : "▶") + "</button></div>" +
+      '<span class="hint">' + img("Speaker high volume") + "</span></button>" +
+      '<button type="button" class="arrow" id="next" aria-label="Suivant">' + (state.idx === n - 1 ? img("Video game") : "▶") + "</button></div>" +
       '<div class="dots">' + cat.items.map((_, i) => '<i class="' + (i === state.idx ? "on" : "") + '"></i>').join("") + "</div>";
     document.getElementById("back").onclick = () => go("cat", { cat: state.cat });
     const card = document.getElementById("card");
-    card.onclick = () => { bounce(card); sayCurrent(); };
+    card.onclick = () => { bounce(card); sfx("pop"); sayCurrent(); };
     document.getElementById("prev").onclick = () => { if (state.idx > 0) { state.idx--; render(); sayCurrent(); } };
     document.getElementById("next").onclick = () => {
       if (state.idx < n - 1) { state.idx++; render(); sayCurrent(); }
-      else { say("Bravo ! On joue ?"); startGame(state.cat, true); }
+      else { sfx("drum"); rain(20); startGame(state.cat); }
     };
   }
 
-  // ----- Game -----
+  // ----- Game: hear a phrase, tap its picture -----
   function startGame(ci, queued) {
-    const cat = CATS[ci];
-    const order = shuffle(cat.items.map((_, i) => i));
-    const rounds = Array.from({ length: ROUNDS }, (_, r) => order[r % order.length]);
-    state = { view: "game", cat: ci, rounds, r: 0, score: 0, locked: false };
-    clearBubbles(); window.scrollTo(0, 0);
-    loadClips(cat.id).then(() => setupRound(queued));
+    state = { view: "game", cat: ci, total: ROUNDS, r: 0, score: 0, extra: 0, locked: false, asked: {}, wrong: {}, fixed: {} };
+    window.scrollTo(0, 0);
+    ready.then(() => setupRound(queued));
   }
   function setupRound(queued) {
-    const cat = CATS[state.cat], target = state.rounds[state.r];
-    const pic = i => cat.items[i][1];   // never offer two items that share a picture
-    const pool = shuffle(cat.items.map((_, i) => i).filter(i => i !== target && pic(i) !== pic(target)));
+    const cat = CATS[state.cat];
+    const target = state.target = pickTarget(cat, state);
+    state.firstTry = true;
+    const key = i => picKey(cat.items[i]);   // never offer two items that share a picture
+    const want = state.wrong[cat.items[target][0]] ? 2 : Math.min(prefs.opts, cat.items.length);   // easier after a mistake
     const others = [];
-    for (const i of pool) { if (others.length >= Math.min(prefs.opts, cat.items.length) - 1) break; if (!others.some(o => pic(o) === pic(i))) others.push(i); }
+    for (const i of shuffle(cat.items.map((_, i) => i))) {
+      if (others.length >= want - 1) break;
+      if (i !== target && key(i) !== key(target) && !others.some(o => key(o) === key(i))) others.push(i);
+    }
     state.options = shuffle([target].concat(others));
     state.locked = false;
     render();
     askNow(queued);
   }
   function askNow(queued) {
-    const cat = CATS[state.cat], item = cat.items[state.rounds[state.r]];
+    const cat = CATS[state.cat], item = cat.items[state.target];
     const sp = document.getElementById("speaker"); if (sp) { sp.classList.remove("pulse"); void sp.offsetWidth; sp.classList.add("pulse"); }
     say(askText(cat, item[0]), { queue: !!queued });
   }
   function renderGame() {
-    const cat = CATS[state.cat], item = cat.items[state.rounds[state.r]];
-    const prog = state.rounds.map((_, i) => '<img src="' + src("Star") + '" alt="" class="' + (i < state.score ? "on" : "") + '">').join("");
+    const cat = CATS[state.cat], item = cat.items[state.target];
     $screen.innerHTML = header(cat) +
-      '<div class="ask"><button type="button" class="speaker" id="speaker" aria-label="Hear the question again">' + img("Speaker high volume") + "</button>" +
+      '<div class="ask"><button type="button" class="speaker" id="speaker" aria-label="Écouter">' + img("Speaker high volume") + "</button>" +
       '<div class="q">' + (prefs.word ? esc(askText(cat, item[0])) : "") + "</div>" +
-      '<div class="progress" aria-label="Stars this game">' + prog + "</div></div>" +
+      '<div class="progress" aria-label="Étoiles">' + stars(state) + "</div></div>" +
       '<div class="opts' + (state.options.length === 3 ? " three" : "") + '">' +
       state.options.map(i => '<button type="button" class="opt" data-i="' + i + '" aria-label="' + esc(cat.items[i][0]) + '">' + picHTML(cat, cat.items[i]) + "</button>").join("") +
       "</div>";
-    document.getElementById("back").onclick = () => go("cat", { cat: state.cat });
+    document.getElementById("back").onclick = () => go(state.cat === CATS.findIndex(c => c.id === ALL_ID) ? "home" : "cat", { cat: state.cat });
     document.getElementById("speaker").onclick = () => askNow();
     $screen.querySelectorAll(".opt").forEach(b => b.onclick = () => choose(b));
   }
   async function choose(btn) {
     if (state.locked) return;
-    const cat = CATS[state.cat], target = state.rounds[state.r], i = +btn.dataset.i;
+    const cat = CATS[state.cat], target = state.target, i = +btn.dataset.i, t = cat.items[target][0];
     if (i === target) {
       state.locked = true;
-      btn.classList.add("right"); sfx("ding");
+      btn.classList.add("right"); sfx("yay");
       $screen.querySelectorAll(".opt").forEach(b => { if (b !== btn) b.classList.add("fade"); });
-      state.score++;
+      record(t, state.firstTry);
+      if (state.wrong[t] && state.firstTry) state.fixed[t] = true;   // only counts when asked again later
+      state.asked[t] = (state.asked[t] || 0) + 1;
+      state.score = Math.min(state.score + 1, state.total);
       const prog = $screen.querySelectorAll(".progress img"); if (prog[state.score - 1]) prog[state.score - 1].classList.add("on");
-      const r = btn.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2);
-      say(pick(PRAISE)); await say(cat.items[target][0], { queue: true });
+      party(btn);
+      await say(t);   // hear the phrase once more with the right picture
       setTimeout(() => {
         if (state.view !== "game") return;
         state.r++;
-        if (state.r >= state.rounds.length) {
+        if (state.r >= state.total) {
+          // a phrase he missed and hasn't got right since comes back once more before the end
+          const pending = Object.keys(state.wrong).some(w => !state.fixed[w]);
+          if (pending && state.extra < 2) { state.extra++; state.total++; return setupRound(); }
           addStars(state.score); go("win", { cat: state.cat, score: state.score });
-          say("Bravo ! Tu as gagné !"); setTimeout(() => chickSays("Bravo, champion !"), 1800);
         } else setupRound();
       }, 400);
     } else {
       // lock while the hint plays so fast repeated taps don't pile up audio
       state.locked = true;
+      if (state.firstTry) { state.firstTry = false; state.wrong[t] = true; }
       const round = state.r;
       btn.classList.remove("wrong"); void btn.offsetWidth; btn.classList.add("wrong");
-      say(cat.items[i][0]);
-      say(pick(TRY), { queue: true }).then(() => { if (state.view === "game" && state.r === round) state.locked = false; });
-      say(askText(cat, cat.items[target][0]), { queue: true });
+      sfx("bwomp"); bounce(chick);
+      setTimeout(() => { say(askText(cat, t)); if (state.view === "game" && state.r === round) state.locked = false; }, 700);
     }
   }
 
   function renderWin() {
     $screen.innerHTML =
-      '<div class="win">' + img("Trophy", "trophy") + "<h2>Bravo !</h2>" +
+      '<div class="win">' + img("Trophy", "trophy") + '<h2 class="ol">Bravo !</h2>' +
       '<div class="got">' + Array.from({ length: state.score }, () => img("Star")).join("") + "</div>" +
-      '<div class="actions"><button type="button" class="btn go" id="again">' + img("Counterclockwise arrows button") + 'Encore</button><button type="button" class="btn" id="home">' + img("House") + "Maison</button></div></div>";
-    burst(); setTimeout(() => burst(), 500);
+      '<div class="actions"><button type="button" class="btn go" id="again" aria-label="Encore">' + img("Counterclockwise arrows button") + '</button><button type="button" class="btn" id="home" aria-label="Maison">' + img("House") + "</button></div></div>";
+    sfx("tada"); dance(); flash();
+    burst(null, null, null, 40); rain(50);
+    setTimeout(() => { burst(null, null, null, 40); sfx("yay"); }, 900);
+    setTimeout(() => { rain(50); sfx("pop"); }, 1600);
+    setTimeout(() => { burst(null, null, null, 40); sfx("tada"); }, 2400);
     document.getElementById("again").onclick = () => state.move ? startMove(state.cat) : startGame(state.cat);
     document.getElementById("home").onclick = () => go("home");
   }
@@ -649,25 +747,23 @@ img.main.photo { border-radius: 24px; background: #fff; filter: none; box-shadow
     setSeg(id, prefs[key]);
     document.querySelectorAll("#" + id + " button").forEach(b => b.onclick = () => {
       prefs[key] = Number(b.dataset.v); store.set(key, prefs[key]); setSeg(id, prefs[key]);
-      if (key === "voice") {
-        store.set("voice2", prefs.voice);
-        Object.keys(clips).forEach(k => delete clips[k]); Object.keys(loading).forEach(k => delete loading[k]);
-        loadClips("common").then(() => say("Bonjour ! On apprend le français ?"));
-        CATS.forEach(c => loadClips(c.id));
-      }
-      if (key === "speed") say("Bonjour ! On apprend le français ?");
+      if (key === "speed") say("Bonjour !");
       if (key === "word" && state.view !== "home") render();
-      if (key === "bub" && !prefs.bub) clearBubbles();
     });
   }
-  bindSeg("voiceSeg", "voice"); bindSeg("speedSeg", "speed"); bindSeg("optSeg", "opts"); bindSeg("wordSeg", "word"); bindSeg("bubSeg", "bub");
+  bindSeg("speedSeg", "speed"); bindSeg("optSeg", "opts"); bindSeg("wordSeg", "word");
   const pBtn = document.getElementById("parentBtn"), panel = document.getElementById("panel");
   pBtn.onclick = () => { const open = panel.hidden; panel.hidden = !open; pBtn.setAttribute("aria-pressed", String(open)); pBtn.setAttribute("aria-expanded", String(open)); };
-  document.getElementById("starChip").onclick = () => { sfx("ding"); chickSays("Tu es super !"); };
+  document.getElementById("starChip").onclick = e => { sfx("ding"); dance(); const r = e.currentTarget.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, ["Star", "Glowing star"], 16); };
 
   document.getElementById("starCount").textContent = prefs.stars;
   render();
-  // warm up the other voices quietly so bubbles can talk
-  setTimeout(() => CATS.forEach(c => loadClips(c.id)), 2500);
+  // the egg wobbles until the voices are loaded, then Poussin hatches
+  const loader = document.getElementById("loader"), t0 = Date.now();
+  ready.then(() => new Promise(r => setTimeout(r, Math.max(0, 1300 - (Date.now() - t0))))).then(() => {
+    loader.classList.add("hatched");
+    setTimeout(() => loader.classList.add("out"), 900);
+    setTimeout(() => loader.remove(), 1500);
+  });
 })();
 </script>
